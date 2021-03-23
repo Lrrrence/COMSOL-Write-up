@@ -1,0 +1,139 @@
+\documentclass[conf]{new-aiaa}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[version=4]{mhchem}
+\usepackage{siunitx}
+\usepackage{longtable,tabularx}
+\setlength\LTleft{0pt} 
+
+\usepackage{gensymb}
+\usepackage{color,soul}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{amssymb}
+\usepackage{tabu}
+\usepackage{booktabs}
+\usepackage{moreverb,url}
+\usepackage{textcomp}
+\usepackage{siunitx}
+\usepackage{tabularx}
+\usepackage{amsmath}
+
+\author{Lawrence Yule\footnote{PhD Student, Electronics and Computer Science, University of Southampton.}}
+\affil{University of Southampton, Southampton, UK, SO17 1BJ}
+\author {Bahareh Zaghari\footnote{Lecturer in Propulsion Integration, Centre for Propulsion Engineering, Cranfield University}}
+\affil{School of Aerospace, Transport and Manufacturing, Cranfield University, Bedford, UK MK43 0AL}
+\author{Nicholas Harris\footnote{Professor, Electronics and Computer Science, University of Southampton.}}
+\affil{University of Southampton, Southampton, UK, SO17 1BJ}
+\author{Martyn Hill\footnote{Professor of Electromechanical Systems, Engineering and Physical Sciences, University of Southampton.}}
+\affil{University of Southampton, Southampton, UK, SO17 1BJ}
+
+\begin{document}
+
+\title{COMSOL modelling of ultrasonic guided wave signal transmission}
+
+\maketitle
+
+\begin{abstract}
+ABSTRACT
+\end{abstract}
+
+\section{Nomenclature}
+
+{\renewcommand\arraystretch{1.0}
+\noindent\begin{longtable*}{@{}l @{\quad=\quad} l@{}}
+$t_F$  & Time of flight \\
+$E$  & Young's Modulus \\
+$d$ & Distance \\
+$v$ & Wave velocity \\
+$\alpha$ & Coefficient of thermal expansion \\
+$k$ & Rate of change of wave velocity with temperature \\
+$T$ & Temperature \\
+
+\end{longtable*}}
+\newpage
+
+\section{Introduction}
+This paper aims to help COMSOL users in modelling the propagation of ultrasonic guided waves. The effect of temperature on their propagation is also considered. The case study considered here is the propagation of the $S_0$ Lamb wave mode in an Aluminium plate, generated via simplified piezoelectric transducer and transmitted through acrylic wedges set to specific angles. The plate thickness and wedge angle has been careful selected to excite only the $S_0$ mode, based on dispersion curves generated using The Dispersion Calculator. A heat source is applied from below and used to heat up the plate and wedges to analyse the effect of temperature on signal transmission. The simulation is designed to replicate a real world test setup and is to be used for validation of experimental results. The basic workflow is as follows:
+\\
+\begin{itemize}
+    \item Global definitions
+        \begin{itemize}
+            \item Parameters
+        \end{itemize}
+    \item Component
+        \begin{itemize}
+            \item Excitation 
+            \item Geometry
+            \item Materials
+            \item Physics
+            \item Mesh
+        \end{itemize}
+    \item Study
+    \item Results
+\end{itemize} 
+
+The following sections will look at each of these elements in turn. Please note that the following guide is based on COMSOL version 5.6.
+
+\section{Global Definitions}
+
+The first step in building a model is to define some important parameters to be used throughout. In this case the parameters will be related to geometry (size of objects, excitation angle), material properties (wave velocities, wavelengths), excitation settings (frequency, pulse length) and model settings (time step, mesh sizes, simulation length).
+
+In this case the geometry is based off of real world measurements, replicating an experimental test setup. The excitation angle (31\degree) has been chosen to selectively excite the $S_0$ Lamb wave mode.
+
+\section{Excitation}
+
+In this case a 10 cycle 1 MHz sine wave pulse is used as the excitation signal. This can be added by creating an analytic function under Components > Definitions > Functions > Analytic. The expression for this function is:
+
+\begin{verbatim}
+10*sin(2*pi*f_0*t)*(t<(np/f_0))
+\end{verbatim}
+
+Where "np" is the number of cycles in the pulse (10) and F\textunderscore0 is the excitation frequency (1 MHz). The function is set to "V" as this will be applied to a voltage terminal of a simple piezoelectric transducer.
+
+\section{Geometry}
+
+In this section the physical geometries must be built from a number of shapes. For this case study two variable angle wedges are placed on top of a 1mm thick piece of Aluminium. One wedge is built and then mirrored to allow for easy adjustment of both wedges simultaneously. A global definition of wedge angle is used to control the rotation of the transducer block around the exterior of the wedge base. A piece of piezoelectric material is placed on the transmitting wedge to allow for excitation. This can be mirrored on the receiving wedge. A boundary area is also set for applying a heat source to the aluminium plate.
+
+\section{Materials}
+
+Here the relevant materials are paired with the geometries created previously. For this case study the materials are Lead Zirconate Titante (PZT-5H) for the piezoelectric material, Aluminium for the plate, and Acrylic for the wedges. These can be added from the material library within COMSOL or from external data. Once the type of physics required has been selected in the next section, check boxes next to material properties will appear to indicate which of them are required. 
+
+A number of the material properties will need to be given over a range of temperature in order to affect wave propagation, namely Young's modulus, Poisson's ratio, and density. This can be achieved by finding experimental data for these properties and calculating a polynomial fit, the equation for which can be input into the COMSOL material properties as a piecewise function, based on the input "T".
+
+\section{Physics}
+
+In this section the physics required to be simulated are chosen. For this case study Solid Mechanics is used, in conjunction with Electrostatics, and Heat Transfer in Solids. A multiphysics node is also required to couple Solid Mechanics with Electrostatics for the piezoelectric effect.
+
+\subsection{Solid Mechanics}
+
+Here two linear elastic material nodes are created for the plate and the wedges. Isotropic solid models are used, and Young's modulus and Poisson's ratios from material properties are used. Alternatively pressure--wave and shear--wave speeds can be used. Damping sub-nodes should be applied to both materials.
+
+The boundaries of the plate should be set as free constraints, while the boundaries of the wedges should be set to low--reflecting boundaries.
+
+\subsection{Electrostatics}
+
+Here the simple piezoelectric transducer for the transmitting wedge is set up. A zero charge node is used for the edges of the material, initial values are set to 0 V, a "Charge Conservation, Piezoelectric" node is set for the material, a ground boundary is selected for the wedge side of the material, and a terminal node is set for the opposite boundary. Within the terminal node the type should be set to Voltage and the input is set to V0(t) to use the excitation signal we setup earlier.
+
+\subsection{Heat Transfer in Solids}
+
+Here the temperature of the system can be controlled. Firstly all the domains are set to solid, and initial values are set to 20\si{\degreeCelsius}. The boundaries that are exposed to the air are selected in a Heat Flux node, where convective heat flux is selected. A user defined heat transfer coefficient of 25 W/(m$^2$*K) is used although this can be varied depending on SOURCE. The external temperature is set to 20\si{\degreeCelsius}.
+
+\section{Mesh}
+
+Here the mesh for each domain is defined. To fulfill the Nyquist criterion at least two elements should be used per local wavelength, however it is suggested to use at least 5. This is defined in the global definition parameters as "N". Calculate the excitation wavelength for each of the materials by dividing their longitudinal wave speed by F\textunderscore0. Now create a Free Triangular mesh for each of the materials, and set the maximum element size for each of them to be LocalWavelength/N. If higher frequency content is expected, calculate the wavelength for each material based on the highest frequency expected rather than F\textunderscore0.
+
+\section{Study}
+
+This study will have two steps, firstly a stationary study to simulate the effect of temperature on the system until an equilibrium is reached, and secondly a time dependant study to simulate wave propagation that has it's initial conditions set by the stationary study. The settings for the initial study are adjusted to not solve for electrostatics/the piezoelectric effect in this study. The time dependant study has it's "Output times" set to: range(0,dt,sim\textunderscore length) where "dt" is a global definition parameter equal to CFL/(N*f\textunderscore max). The CFL number is suggested by COMSOL to be less than 0.2, optimally 0.1. Under "Values of Dependant Variables" the settings are changed to user controlled, method is changed to Solution, and the study is set to the stationary study. The last step is to manually set the time step to be used, which can be found under Solver Configurations>Solution 1>Time dependant solver>Time stepping. Here the "Steps taken by solver" parameter should be changed to "Manual" and the "Time Step" should be set to: CFL/(N*f\textunderscore max). 
+
+\section{Results}
+
+In order to analyse wave propagation a 1D plot group can be created, with two Table Graphs. This plot group can be used to view the transmitted wave at the boundary of the transmitting wedge and the received wave at the boundary of the receiver wedge. To do this two boundary probes should be created in the Component>Definitions section to show pressure, which can be set by changing the expression to "solid.p". There will be a large difference in amplitude between input and output, use two y-axis in the plot group settings to allow both to be visualised on the same graph. The data contained within these tables can easily be exported for further analysis by right-clicking the tables and selecting "Add plot data to export" or by selecting the tables in the Export tab.
+
+2D surface plots can be created to visualise the wave propagation in terms of velocity/pressure/displacement. Adding a sub-node for deformation can help in identifying particular modes, as the difference between an asymmetric and symmetric mode is clearly apparent. Temperature or material properties such as Young's modulus can also be displayed using 2D surface plots.
+
+%\printbibliography
+\bibliography{library, References}
+\end{document}

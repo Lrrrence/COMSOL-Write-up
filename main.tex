@@ -1,5 +1,5 @@
 \documentclass[conf]{new-aiaa}
-\usepackage{bookmark}
+%\usepackage{bookmark}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{amsmath}
@@ -7,12 +7,11 @@
 \usepackage{siunitx}
 \usepackage{longtable,tabularx}
 \setlength\LTleft{0pt} 
-
 \usepackage{gensymb}
 \usepackage{color,soul}
 \usepackage{graphicx}
 \usepackage{xcolor}
-\usepackage{amssymb}
+%\usepackage{amssymb}
 \usepackage{tabu}
 \usepackage{booktabs}
 \usepackage{moreverb,url}
@@ -20,6 +19,7 @@
 \usepackage{siunitx}
 \usepackage{tabularx}
 \usepackage{amsmath}
+\usepackage[colorlinks,bookmarksopen,bookmarksnumbered,citecolor=red,urlcolor=red]{hyperref}
 
 \author{Lawrence Yule\footnote{PhD Student, Electronics and Computer Science, University of Southampton.}}
 \affil{University of Southampton, Southampton, UK, SO17 1BJ}
@@ -59,7 +59,7 @@ $T$ & Temperature \\
 
 Just testing github
 
-This paper aims to help COMSOL users in modelling the propagation of ultrasonic guided waves. The effect of temperature on their propagation is also considered. The case study considered here is the propagation of the $S_0$ Lamb wave mode in an Aluminium plate, generated via simplified piezoelectric transducer and transmitted through acrylic wedges set to specific angles. The plate thickness and wedge angle has been careful selected to excite only the $S_0$ mode, based on dispersion curves generated using The Dispersion Calculator. A heat source is applied from below and used to heat up the plate and wedges to analyse the effect of temperature on signal transmission. The simulation is designed to replicate a real world test setup and is to be used for validation of experimental results. The basic workflow is as follows:
+This paper aims to help COMSOL users in modelling the propagation of ultrasonic guided waves. The effect of temperature on their propagation is also considered. The case study considered here is the propagation of the $S_0$ Lamb wave mode in an Aluminium plate, generated via simplified piezoelectric transducer and transmitted through acrylic wedges set to specific angles. The plate thickness and wedge angle has been careful selected to excite only the $S_0$ mode, based on dispersion curves generated using The Dispersion Calculator \cite{Huber}. A heat source is applied from below and used to heat up the plate and wedges to analyse the effect of temperature on signal transmission. The simulation is designed to replicate a real world test setup and is to be used for validation of experimental results. The basic workflow is as follows:
 \\
 \begin{itemize}
     \item Global definitions
@@ -84,7 +84,7 @@ The following sections will look at each of these elements in turn. Please note 
 
 The first step in building a model is to define some important parameters to be used throughout. In this case the parameters will be related to geometry (size of objects, excitation angle), material properties (wave velocities, wavelengths), excitation settings (frequency, pulse length) and model settings (time step, mesh sizes, simulation length).
 
-In this case the geometry is based off of real world measurements, replicating an experimental test setup. The excitation angle (31\degree) has been chosen to selectively excite the $S_0$ Lamb wave mode.
+In this case the geometry is based off of real world measurements, replicating an experimental test setup. The excitation angle (31\degree) has been chosen to selectively excite the $S_0$ Lamb wave mode. 
 
 \section{Excitation}
 
@@ -104,7 +104,7 @@ In this section the physical geometries must be built from a number of shapes. F
 
 Here the relevant materials are paired with the geometries created previously. For this case study the materials are Lead Zirconate Titante (PZT-5H) for the piezoelectric material, Aluminium for the plate, and Acrylic for the wedges. These can be added from the material library within COMSOL or from external data. Once the type of physics required has been selected in the next section, check boxes next to material properties will appear to indicate which of them are required. 
 
-A number of the material properties will need to be given over a range of temperature in order to affect wave propagation, namely Young's modulus, Poisson's ratio, and density. This can be achieved by finding experimental data for these properties and calculating a polynomial fit, the equation for which can be input into the COMSOL material properties as a piecewise function, based on the input "T".
+A number of the material properties will need to be given over a temperature range in order to affect wave propagation, namely Young's modulus, Poisson's ratio, and density. This can be achieved by finding experimental data for these properties and calculating a polynomial fit, the equation for which can be input into the COMSOL material properties as a piecewise function, based on the input "T" for temperature.
 
 \section{Physics}
 
@@ -112,7 +112,7 @@ In this section the physics required to be simulated are chosen. For this case s
 
 \subsection{Solid Mechanics}
 
-Here two linear elastic material nodes are created for the plate and the wedges. Isotropic solid models are used, and Young's modulus and Poisson's ratios from material properties are used. Alternatively pressure--wave and shear--wave speeds can be used. Damping sub-nodes should be applied to both materials.
+Here two linear elastic material nodes are created for the plate and the wedges. Isotropic solid models are selected for both materials, and Young's modulus and Poisson's ratios from material properties are used. Alternatively pressure--wave and shear--wave speeds can be used. Damping sub-nodes should be applied to both materials. 
 
 The boundaries of the plate should be set as free constraints, while the boundaries of the wedges should be set to low--reflecting boundaries.
 
